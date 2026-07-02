@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import TypeVar, Generic, Type
 from app.db.base import Base
+from sqlalchemy import select, func
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -41,3 +42,10 @@ class CRUDBase(Generic[ModelType]):
         await db.delete(obj)
         await db.commit()
         return obj
+    
+    async def count(self, db: AsyncSession) -> int:
+    # SELECT COUNT(*) FROM <table>
+        result = await db.execute(
+            select(func.count()).select_from(self.model)
+        )
+        return result.scalar()
